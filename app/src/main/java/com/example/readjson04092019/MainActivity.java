@@ -4,6 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -16,6 +20,7 @@ import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        readJSONDemo1("https://khoapham.vn/KhoaPhamTraining/json/tien/demo1.json");
     }
 
     private void readJSONDemo1(final String urlDemo1){
@@ -35,16 +41,26 @@ public class MainActivity extends AppCompatActivity {
         });
         observableDemo1
                 .subscribeOn(Schedulers.newThread())
+                .map(new Function<String, JSONObject>() {
+                    @Override
+                    public JSONObject apply(String s) throws Exception {
+                        return new JSONObject(s);
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<String>() {
+                .subscribe(new Observer<JSONObject>() {
                     @Override
                     public void onSubscribe(Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(String s) {
-                        Log.d("BBB",s);
+                    public void onNext(JSONObject jsonObject) {
+                        try {
+                            Toast.makeText(MainActivity.this, jsonObject.getString("monhoc"), Toast.LENGTH_SHORT).show();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     @Override
